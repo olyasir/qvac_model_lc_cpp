@@ -53,16 +53,11 @@ set(LIB_SOURCES
     src/param_manager.cpp
 )
 
-# Add finetunable model source files directly
-set(FINETUNABLE_MODEL_SOURCES
-    qvac_finetunable_model_cpp/src/finetunable_model.cpp
-   
-)
+
 
 # Add finetunable model include directory
 include_directories(
     ${PROJECT_SOURCE_DIR}/include
-    ${PROJECT_SOURCE_DIR}/qvac_finetunable_model_cpp/include
     ${TVM_INCLUDES}
     ${OpenCV_INCLUDE_DIRS}
 )
@@ -70,7 +65,7 @@ include_directories(
 # Create library
 add_library(${LIB_NAME} SHARED
     ${LIB_SOURCES}
-    ${FINETUNABLE_MODEL_SOURCES}
+   
 )
 
 # Create example executable
@@ -84,7 +79,7 @@ target_include_directories(${LIB_NAME} PUBLIC
     ${TVM_INCLUDES}
     ${TOKENIZERS_INCLUDES}
     ${OpenCV_INCLUDE_DIRS}
-    ${PROJECT_SOURCE_DIR}/qvac_finetunable_model_cpp/include
+   
 )
 
 # Set include directories for the example
@@ -94,7 +89,7 @@ target_include_directories(linear_classifier_example PRIVATE
     ${TVM_INCLUDES}
     ${TOKENIZERS_INCLUDES}
     ${OpenCV_INCLUDE_DIRS}
-    ${PROJECT_SOURCE_DIR}/qvac_finetunable_model_cpp/include
+   
 )
 
 # Link libraries

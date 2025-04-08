@@ -1,23 +1,32 @@
-# Example Model Implementation
+# QVAC Finetunable Simple Model
 
-This project provides an example implementation of the `FinetunableModel` base class from the QVAC ecosystem.
+This project provides an implementation of a linear classifier using the `FinetunableModel` base class from the QVAC ecosystem, with MNIST dataset support.
 
 ## Project Structure
 
 ```
-derived_model/
+qvac_finetunable_simple_model_cpp/
 ├── include/           # Header files
-│   └── example_model.hpp
+│   └── linear_classifier.hpp
 ├── src/              # Source files
-│   └── example_model.cpp
-├── tests/            # Test files
+│   └── linear_classifier.cpp
+├── qvac_finetunable_model_cpp/  # Base class implementation
+│   ├── include/
+│   │   └── finetunable_model.h
+│   └── src/
+│       ├── finetunable_model.cpp
+│       └── parameter_manager.cpp
+├── example.cc        # Example usage with MNIST
 ├── CMakeLists.txt    # Build configuration
 └── README.md         # This file
 ```
 
 ## Dependencies
 
-- qvac_finetunable_model (base class library)
+- TVM (Tensor Virtual Machine)
+- OpenCV
+- MLC-LLM
+- Tokenizers
 
 ## Building the Project
 
@@ -30,37 +39,54 @@ make
 
 ## Usage
 
-To use this model in your project:
+The example demonstrates loading and processing MNIST data with a linear classifier:
 
-1. Include the header:
 ```cpp
-#include "example_model.hpp"
-```
+#include "linear_classifier.hpp"
+#include <opencv2/opencv.hpp>
 
-2. Create an instance of the model:
-```cpp
-qvac::LinearClassifier model;
-```
+int main() {
+    // Initialize model with Vulkan device
+    DLDevice device{kDLVulkan, 0};
+    std::string model_path = "/path/to/model.so";
+    std::unordered_map<std::string, std::string> config_filenames;
+    
+    // Create linear classifier
+    qvac::LinearClassifier model("vulkan", model_path, config_filenames);
 
-3. Initialize and use the model:
-```cpp
-if (model.initialize("config.txt")) {
-    std::vector<std::string> training_data = {"sample1", "sample2"};
-    if (model.finetune(training_data, 10)) {
-        auto predictions = model.predict("test input");
+    // Load model weights
+    std::string model_folder = "/path/to/model/folder";
+    for (int i = 0; i < weight_files_num; i++) {
+        std::string file_name = "params_shard_" + std::to_string(i) + ".bin";
+        std::string full_path = model_folder + "/" + file_name;
+        std::vector<uint8_t> bytes = get_span_from_file(full_path);
+        model.set_weights_for_file(file_name, bytes, true);
     }
+
+    // Load and process MNIST data
+    auto sample = get_image("train-images-idx3-ubyte", "train-labels-idx1-ubyte");
+    Sample s = convertToTVMFormat(std::get<0>(sample), std::get<1>(sample), device);
+
+    // Process input and get gradients
+    model.process(s.input);
+    auto gradient_map = model.get_gradients(s.input, s.labels);
 }
 ```
 
 ## Implementation Details
 
-This example implementation demonstrates:
-- Model initialization from a configuration file
-- Basic fine-tuning with example weight updates
-- Model serialization (save/load)
-- Simple prediction based on input length
+This implementation demonstrates:
+- Loading MNIST dataset in binary format
+- Converting images to TVM NDArray format
+- Processing images through a linear classifier
+- Computing gradients for training
+- Model weight management through ParameterManager
 
-Note: This is an example implementation. You should replace the placeholder logic in the methods with your actual model implementation.
+The model supports:
+- MNIST image processing
+- One-hot label encoding
+- TVM-based inference
+- Gradient computation for training
 
 ## License
 

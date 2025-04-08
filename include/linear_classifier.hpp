@@ -1,6 +1,5 @@
 #pragma once
 
-#include <finetunable_model.hpp>
 #include <string>
 #include <vector>
 #include <memory>
@@ -22,10 +21,10 @@ using tvm::runtime::memory::AllocatorType;
  * This class implements a basic linear classifier using two fully connected layers
  * for classification tasks.
  */
-class LinearClassifier : public FinetunableModel {
+class LinearClassifier  {
 public:
     LinearClassifier() = default;
-    ~LinearClassifier() override = default;
+    ~LinearClassifier() = default;
 
    
     LinearClassifier(const std::string& device_name,
